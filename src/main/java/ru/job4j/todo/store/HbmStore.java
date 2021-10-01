@@ -2,12 +2,14 @@ package ru.job4j.todo.store;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import ru.job4j.todo.model.Task;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class HbmStore implements Store, AutoCloseable {
 
@@ -16,7 +18,8 @@ public class HbmStore implements Store, AutoCloseable {
     private final SessionFactory sf = new MetadataSources(registry)
             .buildMetadata().buildSessionFactory();
 
-    private HbmStore() { }
+    private HbmStore() {
+    }
 
     private static final class Lazy {
         private static final Store INST = new HbmStore();
@@ -26,48 +29,55 @@ public class HbmStore implements Store, AutoCloseable {
         return Lazy.INST;
     }
 
+    private <T> T execute(final Function<Session, T> command) {
+        final Session session = sf.openSession();
+        final Transaction transaction = session.beginTransaction();
+        try {
+            T rsl = command.apply(session);
+            transaction.commit();
+            return rsl;
+        } catch (final Exception e) {
+            session.getTransaction().rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
+    }
+
     @Override
     public Task add(Task task) {
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
-            session.save(task);
-            session.getTransaction().commit();
-        }
-        return task;
+        return this.execute(
+                session -> {
+                    session.save(task);
+                    return task;
+                }
+        );
     }
 
     @Override
     public List<Task> findAll() {
-        List<Task> tasks;
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
-            tasks = session.createQuery("from Task order by id").list();
-            session.getTransaction().commit();
-        }
-        return tasks;
+        return this.execute(
+                session -> session.createQuery("from Task order by id").list());
     }
 
     @Override
     public List<Task> findNotCompleted() {
-        List<Task> tasks;
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
-            tasks = session.createQuery("from Task where done = false order by id").list();
-            session.getTransaction().commit();
-        }
-        return tasks;
+        return this.execute(
+                session -> session.createQuery("from Task where done = false order by id").list());
     }
 
     @Override
-    public void saveTaskStatus(int id, boolean done) {
-            try (Session session = sf.openSession()) {
-                session.beginTransaction();
-                Task task = session.get(Task.class, id);
-                if (task != null) {
-                    task.setDone(done);
-                }
-                session.getTransaction().commit();
-        }
+    public boolean saveTaskStatus(int id, boolean done) {
+        return this.execute(
+                session -> {
+                    boolean rsl = false;
+                    Task task = session.get(Task.class, id);
+                    if (task != null) {
+                        task.setDone(done);
+                        rsl = true;
+                    }
+                    return rsl;
+                });
     }
 
     @Override

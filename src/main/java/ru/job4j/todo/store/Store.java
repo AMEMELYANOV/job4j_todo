@@ -9,7 +9,7 @@ public interface Store {
 
     List<Task> findAll();
 
-    void saveTaskStatus(int id, boolean taskState);
+    boolean saveTaskStatus(int id, boolean taskState);
 
     List<Task> findNotCompleted();
 }
