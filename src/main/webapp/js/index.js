@@ -16,6 +16,7 @@ function loadTasks() {
             const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: "numeric"};
             let created = new Date(task.created).toLocaleDateString("ru", options);
             let checked = task.done ? "checked" : "";
+            let user = task.user.name;
             let row = `
                    <tr>
                       <td>${task.describe}</td>
@@ -26,6 +27,7 @@ function loadTasks() {
                             <input type="checkbox" name="state" ${checked}>
                         </div>
                       </td>
+                      <td>${user}</td>
                     </tr>`;
             $("#table_body").append(row);
         }

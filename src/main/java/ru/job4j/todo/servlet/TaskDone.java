@@ -1,6 +1,6 @@
 package ru.job4j.todo.servlet;
 
-import ru.job4j.todo.store.HbmStore;
+import ru.job4j.todo.store.HbmTaskStore;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +12,6 @@ public class TaskDone extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         String state = request.getParameter("done");
         boolean done = "true".equals(state);
-        HbmStore.instOf().saveTaskStatus(id, done);
+        HbmTaskStore.instOf().saveTaskStatus(id, done);
     }
 }

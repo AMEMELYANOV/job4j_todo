@@ -4,7 +4,7 @@ import ru.job4j.todo.model.Task;
 
 import java.util.List;
 
-public interface Store {
+public interface TaskStore {
     Task add(Task task);
 
     List<Task> findAll();

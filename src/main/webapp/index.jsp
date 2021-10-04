@@ -1,3 +1,6 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +12,33 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script type="text/javascript" src='<c:url value="http://localhost:8080/todo/scripts/load.js"/>'></script>
     <script src="js/index.js" defer></script>
 </head>
 <body>
 <div class="container">
+    <div class="row mx-2 px-2 my-1 py-1">
+        <div class="col align-self-end">
+            <p><h5>Список задач:</h5></p>
+        </div>
+        <div class="col-8">
+        </div>
+        <div class="col align-self-end">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="<%=request.getContextPath()%>/login.jsp"> <c:out value="${user.name}"/></a>
+                </li>
+                <c:if test="${user != null}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="<%=request.getContextPath()%>/logout.do">Выйти</a>
+                    </li>
+                </c:if>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+
+    </div>
     <div class="row pt-3 mx-2 px-2 my-1 py-1">
         <div class="col">
             <div id="desc_form">
@@ -29,7 +54,7 @@
     </div>
     <div class="row mx-2 px-2 my-1 py-1">
         <div class="col align-self-end">
-           <p><h5>Список задач:</h5></p>
+            <p><h5>Список задач:</h5></p>
         </div>
         <div class="col">
         </div>
@@ -46,6 +71,7 @@
                 <th>Описание задачи</th>
                 <th style="width: 25%;">Дата и время создания</th>
                 <th style="width: 10%;">Выполнена</th>
+                <th style="width: 15%;">Автор</th>
             </tr>
             </thead>
             <tbody id="table_body">

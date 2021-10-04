@@ -6,26 +6,27 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import ru.job4j.todo.model.Task;
+import org.hibernate.query.Query;
+import ru.job4j.todo.model.User;
 
 import java.util.List;
 import java.util.function.Function;
 
-public class HbmStore implements Store, AutoCloseable {
+public class HbmUserStore implements UserStore, AutoCloseable {
 
     private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
             .configure().build();
     private final SessionFactory sf = new MetadataSources(registry)
             .buildMetadata().buildSessionFactory();
 
-    private HbmStore() {
+    private HbmUserStore() {
     }
 
     private static final class Lazy {
-        private static final Store INST = new HbmStore();
+        private static final UserStore INST = new HbmUserStore();
     }
 
-    public static Store instOf() {
+    public static UserStore instOf() {
         return Lazy.INST;
     }
 
@@ -45,39 +46,29 @@ public class HbmStore implements Store, AutoCloseable {
     }
 
     @Override
-    public Task add(Task task) {
+    public User add(User user) {
         return this.execute(
                 session -> {
-                    session.save(task);
-                    return task;
+                    session.save(user);
+                    return user;
                 }
         );
     }
 
     @Override
-    public List<Task> findAll() {
-        return this.execute(
-                session -> session.createQuery("from Task order by id").list());
-    }
-
-    @Override
-    public List<Task> findNotCompleted() {
-        return this.execute(
-                session -> session.createQuery("from Task where done = false order by id").list());
-    }
-
-    @Override
-    public boolean saveTaskStatus(int id, boolean done) {
-        return this.execute(
+    public User findUserByEmail(String email) {
+        return (User) this.execute(
                 session -> {
-                    boolean rsl = false;
-                    Task task = session.get(Task.class, id);
-                    if (task != null) {
-                        task.setDone(done);
-                        rsl = true;
+                    Query query = session.createQuery("from User where email = :email");
+                    query.setParameter("email", email);
+                    List results = query.getResultList();
+                    if (results.isEmpty()) {
+                        return null;
+                    } else {
+                        return results.get(0);
                     }
-                    return rsl;
-                });
+                }
+        );
     }
 
     @Override
