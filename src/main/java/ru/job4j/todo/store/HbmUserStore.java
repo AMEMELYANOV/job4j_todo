@@ -57,16 +57,11 @@ public class HbmUserStore implements UserStore, AutoCloseable {
 
     @Override
     public User findUserByEmail(String email) {
-        return (User) this.execute(
+        return this.execute(
                 session -> {
                     Query query = session.createQuery("from User where email = :email");
                     query.setParameter("email", email);
-                    List results = query.getResultList();
-                    if (results.isEmpty()) {
-                        return null;
-                    } else {
-                        return results.get(0);
-                    }
+                    return (User) query.uniqueResult();
                 }
         );
     }

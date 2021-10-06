@@ -26,10 +26,7 @@ public class RegServlet extends HttpServlet {
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String password = req.getParameter("password");
-        if ("".equals(name.trim()) || "".equals(email.trim()) || "".equals(password.trim())) {
-            req.setAttribute("error", "Некорректное заполнение полей");
-            req.getRequestDispatcher("reg.jsp").forward(req, resp);
-        } else if (store.findUserByEmail(email) == null) {
+        if (store.findUserByEmail(email) == null) {
             User user = new User();
             user.setName(name);
             user.setEmail(email);
