@@ -17,10 +17,7 @@
 <body>
 <div class="container">
     <div class="row mx-2 px-2 my-1 py-1">
-        <div class="col align-self-end">
-            <p><h5>Список задач:</h5></p>
-        </div>
-        <div class="col-8">
+        <div class="col-9">
         </div>
         <div class="col align-self-end">
             <ul class="nav">
@@ -35,24 +32,23 @@
             </ul>
         </div>
     </div>
-
-    <div class="row">
-
-    </div>
-    <div class="row pt-3 mx-2 px-2 my-1 py-1">
+    <div class="row pt-2 mx-2 px-2 my-1 py-1">
         <div class="col">
-            <div id="desc_form">
                 <h5>Добавить новую задачу:</h5>
                 <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Описание:">
-            </div>
+                <div class="row mx-0 px-0 my-3 py-1">
+                    <h5>Выберите категорию:</h5>
+                    <select class="form-control" name="category" id="category" multiple>
+                    </select>
+                </div>
         </div>
     </div>
-    <div class="row mx-2 px-2 my-1 py-1">
+    <div class="row mx-2 px-2">
         <div class="col">
             <p><button id="submit_task" type="reset" class="btn btn-primary" onclick="addNewTask();">Создать задачу</button></p>
         </div>
     </div>
-    <div class="row mx-2 px-2 my-1 py-1">
+    <div class="row mx-2 px-2 mt-5 pt-1">
         <div class="col align-self-end">
             <p><h5>Список задач:</h5></p>
         </div>
@@ -69,9 +65,10 @@
             <thead>
             <tr id="table_head_row">
                 <th>Описание задачи</th>
-                <th style="width: 25%;">Дата и время создания</th>
-                <th style="width: 10%;">Выполнена</th>
-                <th style="width: 15%;">Автор</th>
+                <th style="width: 25%; text-align: center" >Дата и время создания</th>
+                <th style="width: 10%; text-align: center">Выполнена</th>
+                <th style="width: 15%; text-align: center">Автор</th>
+                <th style="width: 15%; text-align: center">Категория</th>
             </tr>
             </thead>
             <tbody id="table_body">

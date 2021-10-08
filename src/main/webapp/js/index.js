@@ -1,8 +1,8 @@
 $(function () {
-    loadTasks()
+    loadDataFromServlet();
 });
 
-function loadTasks() {
+function loadDataFromServlet() {
     $.ajax({
         type: 'GET',
         url: '/todo/index.do',
@@ -11,13 +11,36 @@ function loadTasks() {
         },
         dataType: 'json'
     }).done(function (data) {
-        $("#table_body").empty();
-        for (let task of data) {
-            const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: "numeric"};
-            let created = new Date(task.created).toLocaleDateString("ru", options);
-            let checked = task.done ? "checked" : "";
-            let user = task.user.name;
-            let row = `
+        loadTasks(data[0]);
+        loadCategories(data[1]);
+    }).fail(function (err) {
+        console.log(err);
+    });
+}
+
+function loadCategories(categories) {
+    $("#category").empty();
+    for (let category of categories) {
+        let option = document.createElement('option');
+        option.id = category.id;
+        option.innerText = category.name;
+        $("#category").append(option);
+    }
+}
+
+function loadTasks(tasks) {
+    $("#table_body").empty();
+    for (let task of tasks) {
+        const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: "numeric"};
+        let created = new Date(task.created).toLocaleDateString("ru", options);
+        let checked = task.done ? "checked" : "";
+        let user = task.user.name;
+        let category = '<ul>';
+        for (let cat of task.categories) {
+            category += '<li>' + cat.name + '</li>';
+        }
+        category += '</ul>';
+        let row = `
                    <tr>
                       <td>${task.describe}</td>
                       <td>${created}</td>
@@ -28,30 +51,49 @@ function loadTasks() {
                         </div>
                       </td>
                       <td>${user}</td>
+                      <td>${category}</td>
                     </tr>`;
-            $("#table_body").append(row);
-        }
-    }).fail(function (err) {
-        console.log(err);
-    });
+        $("#table_body").append(row);
+    }
 }
 
-function validate() {
+function validateDescTask() {
     return $('#newDesc').val() !== '';
 }
 
+function validateCategories() {
+    let cIdc = [];
+    for (let children of $("#category").children()) {
+        if (children.selected === true) {
+            cIdc.push(children.id);
+        }
+    }
+    if (cIdc.length > 0) {
+        return true;
+    } else if (cIdc.length === 0) {
+        return false
+    }
+}
+
 function addNewTask() {
-    if (validate()) {
+    if (validateDescTask() && validateCategories()) {
+        let cIdc = [];
+        for (let children of $("#category").children()) {
+            if (children.selected === true) {
+                cIdc.push(children.id);
+            }
+        }
         $.ajax({
             type: 'POST',
             url: '/todo/index.do',
-            data: JSON.stringify({
-                describe: $('#newDesc').val()
-            }),
+            data: {
+                describe: $('#newDesc').val(),
+                cIdc: JSON.stringify(cIdc)
+            },
             dataType: 'json'
         }).done(function () {
             $("#newDesc").val("");
-            loadTasks()
+            loadDataFromServlet();
         }).fail(function (err) {
             console.log(err);
         });
@@ -59,7 +101,7 @@ function addNewTask() {
 }
 
 $(document).on("change", "#completed", function () {
-        loadTasks();
+        loadDataFromServlet();
     }
 );
 
@@ -74,7 +116,7 @@ $(document).on("change", ".change_state_div", function () {
                 done: done
             }
         }).done(function () {
-            loadTasks();
+            loadDataFromServlet();
         }).fail(function (err) {
             console.log(err)
         })

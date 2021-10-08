@@ -9,7 +9,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import ru.job4j.todo.model.User;
 
-import java.util.List;
 import java.util.function.Function;
 
 public class HbmUserStore implements UserStore, AutoCloseable {

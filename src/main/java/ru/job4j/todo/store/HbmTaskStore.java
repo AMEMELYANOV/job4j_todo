@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Task;
 
 import java.util.List;
@@ -45,9 +46,13 @@ public class HbmTaskStore implements TaskStore, AutoCloseable {
     }
 
     @Override
-    public Task add(Task task) {
+    public Task add(Task task, List<Integer> cIdc) {
         return this.execute(
                 session -> {
+                    for (Integer id : cIdc) {
+                        Category category = session.find(Category.class, id);
+                        task.addCategory(category);
+                    }
                     session.save(task);
                     return task;
                 }
@@ -57,13 +62,15 @@ public class HbmTaskStore implements TaskStore, AutoCloseable {
     @Override
     public List<Task> findAll() {
         return this.execute(
-                session -> session.createQuery("from Task order by id").list());
+                session -> session.createQuery("select distinct t "
+                        + "from Task t join fetch t.categories order by t.id").list());
     }
 
     @Override
     public List<Task> findNotCompleted() {
         return this.execute(
-                session -> session.createQuery("from Task where done = false order by id").list());
+                session -> session.createQuery("select distinct t from Task t "
+                        + "join fetch t.categories where t.done = false order by t.id").list());
     }
 
     @Override
@@ -78,6 +85,12 @@ public class HbmTaskStore implements TaskStore, AutoCloseable {
                     }
                     return rsl;
                 });
+    }
+
+    @Override
+    public List<Category> findAllCategories() {
+        return this.execute(session ->
+                session.createQuery("from Category", Category.class).list());
     }
 
     @Override
