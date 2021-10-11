@@ -1,8 +1,8 @@
 package ru.job4j.todo.model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -11,8 +11,11 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String describe;
-    private Timestamp created = new Timestamp(System.currentTimeMillis());
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created = new Date(System.currentTimeMillis());
     private boolean done = false;
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -41,11 +44,11 @@ public class Task {
         this.describe = describe;
     }
 
-    public Timestamp getCreated() {
+    public Date getCreated() {
         return created;
     }
 
-    public void setCreated(Timestamp created) {
+    public void setCreated(Date created) {
         this.created = created;
     }
 
